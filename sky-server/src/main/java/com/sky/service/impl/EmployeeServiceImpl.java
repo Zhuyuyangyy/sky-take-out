@@ -6,6 +6,7 @@ import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.constant.StatusConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.EmployeeDTO;
 import com.sky.dto.EmployeeLoginDTO;
 import com.sky.dto.EmployeePageQueryDTO;
 import com.sky.entity.Employee;
@@ -66,21 +67,22 @@ public class EmployeeServiceImpl implements EmployeeService {
         //3、返回实体对象
         return employee;
     }
-    /* 新增员工
-    /
+    /*
+    /新增员工
      */
     @Override
-    public void save(EmployeeLoginDTO employeeLoginDTO) {
+    public void save(EmployeeDTO employeeDTO) {
         //创建实体对象
         Employee employee = new Employee();
 
         //对象属性拷贝
-        BeanUtils.copyProperties(employeeLoginDTO, employee);
+        BeanUtils.copyProperties(employeeDTO, employee);
 
         //设置账号状态，默认正常状态1表示正常0表示锁定
         employee.setStatus(StatusConstant.ENABLE);
 
         //设置密码，默认密码123456
+        employee.setPassword("123456");
         employee.setPassword(DigestUtils.md5DigestAsHex(employee.getPassword().getBytes()));
 
         //设置当前记录创建的时间和修改的时间
@@ -93,7 +95,6 @@ public class EmployeeServiceImpl implements EmployeeService {
         employee.setUpdateUser(BaseContext.getCurrentId());
 
         employeeMapper.insert(employee);
-
     }
     /*
     * 分页查询
@@ -110,5 +111,15 @@ public class EmployeeServiceImpl implements EmployeeService {
 
         return new PageResult(total,employees);
     }
-
+    /*
+    * 启用，禁用员工账号
+    * */
+    @Override
+    public void updateStatus(Integer status, Long id) {
+//        Employee employee = new Employee();
+//        employee.setStatus(status);
+//        employee.setId(id);
+        Employee employee = Employee.builder().id(id).status(status).build();
+        employeeMapper.updateStatus(employee);
+    }
 }
